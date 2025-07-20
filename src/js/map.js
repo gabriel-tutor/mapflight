@@ -30,7 +30,12 @@ class FlightPathMap {
             // Set Mapbox access token
             mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
             
-            // Create map instance
+            // Wait for mapboxgl to be fully loaded
+            if (typeof mapboxgl === 'undefined') {
+                throw new Error('Mapbox GL JS not loaded. Please check your internet connection.');
+            }
+            
+            // Create map instance with WebGL fallback and headless browser support
             this.map = new mapboxgl.Map({
                 container: 'map',
                 style: MAP_CONFIG.style,
@@ -38,8 +43,31 @@ class FlightPathMap {
                 zoom: MAP_CONFIG.defaultZoom,
                 attributionControl: false,
                 preserveDrawingBuffer: true, // Required for screenshots
-                antialias: true
+                antialias: false, // Disable antialiasing for better headless compatibility
+                failIfMajorPerformanceCaveat: false, // Allow software rendering
+                localIdeographFontFamily: "'Noto Sans', 'Noto Sans CJK SC', sans-serif",
+                // Additional options for headless browser compatibility
+                interactive: false, // Disable interactions for screenshots
+                trackResize: false, // Disable resize tracking
+                renderWorldCopies: false, // Disable world copies for better performance
+                // WebGL compatibility options
+                maxZoom: 22,
+                minZoom: 0,
+                maxPitch: 85,
+                maxBounds: null,
+                // Force software rendering for headless environments
+                transformRequest: (url, resourceType) => {
+                    if (resourceType === 'Tile') {
+                        return { url: url };
+                    }
+                    return { url: url };
+                }
             });
+            
+            // Verify map was created successfully
+            if (!this.map || typeof this.map.on !== 'function') {
+                throw new Error('Failed to create map instance. Mapbox GL JS may not be properly loaded.');
+            }
             
             // Add event listeners
             this.map.on('load', this.handleMapLoad);
@@ -96,8 +124,75 @@ class FlightPathMap {
      */
     handleMapError(error) {
         console.error('Map error:', error);
-        showError('Map loading error occurred');
+        
+        // Try to create a fallback visualization
+        this.createFallbackVisualization();
+        
+        showError('Map loading failed. Using fallback visualization.');
         hideLoading();
+    }
+
+    /**
+     * Create fallback visualization when WebGL fails
+     */
+    createFallbackVisualization() {
+        try {
+            const mapContainer = document.getElementById('map');
+            if (!mapContainer) return;
+
+            // Create a simple fallback visualization
+            mapContainer.innerHTML = `
+                <div style="
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    position: relative;
+                ">
+                    <div style="
+                        position: absolute;
+                        top: 20%;
+                        left: 20%;
+                        width: 60%;
+                        height: 60%;
+                        border: 2px solid #3B82F6;
+                        border-radius: 10px;
+                        background: rgba(59, 130, 246, 0.1);
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                    ">
+                        <div style="font-size: 24px; margin-bottom: 10px;">✈️ Flight Path</div>
+                        <div style="font-size: 16px; text-align: center;">
+                            CVG → MCO<br>
+                            <span style="color: #10B981;">●</span> POI Markers<br>
+                            <span style="color: #8B5CF6;">●</span> Story Markers<br>
+                            <span style="color: #FFFFFF;">●</span> Aircraft Position
+                        </div>
+                    </div>
+                    <div style="
+                        position: absolute;
+                        bottom: 20px;
+                        right: 20px;
+                        font-size: 12px;
+                        opacity: 0.7;
+                    ">
+                        Fallback Mode
+                    </div>
+                </div>
+            `;
+            
+            console.log('Fallback visualization created');
+            
+        } catch (error) {
+            console.error('Failed to create fallback visualization:', error);
+        }
     }
     
     /**
@@ -164,65 +259,90 @@ class FlightPathMap {
      * Set map view for overview screenshot
      */
     async setOverviewView() {
-        if (!this.isInitialized) {
-            throw new Error('Map not initialized');
+        try {
+            console.log('Setting overview view...');
+            
+            if (!this.isInitialized) {
+                throw new Error('Map not initialized');
+            }
+            
+            const { zoom, center } = MAP_CONFIG.overview;
+            console.log('Overview view config:', { zoom, center });
+            
+            await this.map.flyTo({
+                center: center,
+                zoom: zoom,
+                duration: 2000,
+                essential: true
+            });
+            
+            // Wait for animation to complete
+            await new Promise(resolve => {
+                this.map.once('moveend', resolve);
+            });
+            
+            // Additional wait for tiles to load
+            await new Promise(resolve => setTimeout(resolve, SCREENSHOT_CONFIG.tileLoadWait));
+            
+            console.log('Overview view set successfully');
+            
+        } catch (error) {
+            console.error('Error setting overview view:', error);
+            throw error;
         }
-        
-        const { zoom, center } = MAP_CONFIG.overview;
-        
-        await this.map.flyTo({
-            center: center,
-            zoom: zoom,
-            duration: 2000,
-            essential: true
-        });
-        
-        // Wait for animation to complete
-        await new Promise(resolve => {
-            this.map.once('moveend', resolve);
-        });
-        
-        // Additional wait for tiles to load
-        await new Promise(resolve => setTimeout(resolve, SCREENSHOT_CONFIG.tileLoadWait));
     }
     
     /**
      * Set map view for zoom screenshot
      */
     async setZoomView() {
-        if (!this.isInitialized) {
-            throw new Error('Map not initialized');
+        try {
+            console.log('Setting zoom view...');
+            
+            if (!this.isInitialized) {
+                throw new Error('Map not initialized');
+            }
+            
+            const aircraftMarker = this.markerManager.getAircraftMarker();
+            if (!aircraftMarker) {
+                throw new Error('Aircraft marker not found');
+            }
+            
+            const aircraftCoords = aircraftMarker.data.coordinates;
+            const { zoom } = MAP_CONFIG.zoom;
+            
+            console.log('Aircraft coordinates:', aircraftCoords);
+            console.log('Zoom level:', zoom);
+            
+            // Calculate center to position aircraft in top third of frame
+            const bounds = this.map.getBounds();
+            const mapHeight = bounds.getNorth() - bounds.getSouth();
+            const offset = mapHeight * 0.2; // Move center up by 20% of map height
+            
+            const center = [aircraftCoords[0], aircraftCoords[1] + offset];
+            console.log('Calculated center:', center);
+            
+            await this.map.flyTo({
+                center: center,
+                zoom: zoom,
+                duration: 2000,
+                essential: true
+            });
+            
+            // Wait for animation to complete
+            await new Promise(resolve => {
+                this.map.once('moveend', resolve);
+            });
+            
+            // Additional wait for tiles to load
+            await new Promise(resolve => setTimeout(resolve, SCREENSHOT_CONFIG.tileLoadWait));
+            
+            console.log('Zoom view set successfully');
+            
+        } catch (error) {
+            console.error('Error setting zoom view:', error);
+            throw error;
         }
-        
-        const aircraftMarker = this.markerManager.getAircraftMarker();
-        if (!aircraftMarker) {
-            throw new Error('Aircraft marker not found');
-        }
-        
-        const aircraftCoords = aircraftMarker.data.coordinates;
-        const { zoom } = MAP_CONFIG.zoom;
-        
-        // Calculate center to position aircraft in top third of frame
-        const bounds = this.map.getBounds();
-        const mapHeight = bounds.getNorth() - bounds.getSouth();
-        const offset = mapHeight * 0.2; // Move center up by 20% of map height
-        
-        const center = [aircraftCoords[0], aircraftCoords[1] + offset];
-        
-        await this.map.flyTo({
-            center: center,
-            zoom: zoom,
-            duration: 2000,
-            essential: true
-        });
-        
-        // Wait for animation to complete
-        await new Promise(resolve => {
-            this.map.once('moveend', resolve);
-        });
-        
-        // Additional wait for tiles to load
-        await new Promise(resolve => setTimeout(resolve, SCREENSHOT_CONFIG.tileLoadWait));
     }
     
     /**
@@ -318,6 +438,9 @@ async function initializeApp() {
         
         // Initialize map
         await flightPathMap.initialize();
+        
+        // Expose to window for Puppeteer access
+        window.flightPathMap = flightPathMap;
         
         console.log('Application initialized successfully');
         

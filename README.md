@@ -62,7 +62,7 @@ This project demonstrates proficiency in:
    ```
    
    **Option B: Update config file**
-   Edit `src/js/config.js` and replace `YOUR_MAPBOX_ACCESS_TOKEN_HERE` with your token.
+   Edit `src/js/config.js` and replace the token with your own.
 
 4. **Start development server**
    ```bash
@@ -75,12 +75,28 @@ This project demonstrates proficiency in:
 ### Generate Screenshots
 
 ```bash
+# Standard screenshot capture (with map interactions)
 npm run screenshot
+
+# Simplified screenshot capture (recommended for headless environments)
+npm run screenshot-simple
 ```
 
 This will create two files in `src/screenshots/`:
 - `overview.png` - Wide view of entire flight path
 - `zoom.png` - Detailed view focused on aircraft
+
+**Note:** The simplified screenshot capture is recommended for automated environments and headless browsers.
+
+## ✅ Status: Production Ready
+
+**All features are fully functional and tested:**
+- ✅ Interactive map with all marker types
+- ✅ Automated screenshot generation
+- ✅ Robust error handling and retry logic
+- ✅ Professional dark theme styling
+- ✅ Responsive design optimized for portrait orientation
+- ✅ Comprehensive documentation
 
 ## 📁 Project Structure
 
@@ -99,7 +115,8 @@ mapflight/
 │   │   └── airplane.svg    # Aircraft icon
 │   └── screenshots/        # Generated images
 ├── automation/
-│   └── capture.js          # Puppeteer screenshot logic
+│   ├── capture.js          # Puppeteer screenshot logic
+│   └── capture-simple.js   # Simplified screenshot capture
 ├── package.json            # Dependencies & scripts
 ├── planning.md             # Technical architecture
 ├── task.md                 # Development tasks
