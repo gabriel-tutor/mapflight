@@ -1,0 +1,28 @@
+{
+  "name": "mapflight",
+  "version": "1.0.0",
+  "description": "Mapbox Flight Path Visualization & Automated Screenshot System",
+  "main": "src/index.html",
+  "scripts": {
+    "dev": "npx http-server src -p 3000 -c-1",
+    "screenshot": "node automation/capture.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Build completed - static files ready\""
+  },
+  "keywords": [
+    "mapbox",
+    "flight",
+    "visualization",
+    "screenshots",
+    "puppeteer"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "puppeteer": "^24.14.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

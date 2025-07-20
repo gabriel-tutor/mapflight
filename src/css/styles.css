@@ -1,0 +1,324 @@
+/**
+ * Custom styles for Mapbox Flight Path Visualization
+ * Dark theme with portrait orientation optimization
+ */
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Map container - optimized for portrait orientation */
+.map-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background-color: #1a1a1a;
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(26, 26, 26, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #3B82F6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Error overlay */
+.error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(26, 26, 26, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    transition: opacity 0.3s ease;
+}
+
+.error-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.error-content {
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    max-width: 400px;
+    margin: 20px;
+}
+
+.error-content h3 {
+    color: #ef4444;
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.error-content p {
+    color: #d1d5db;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.error-content button {
+    background-color: #3B82F6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.error-content button:hover {
+    background-color: #2563eb;
+}
+
+/* Mapbox GL JS customizations */
+.mapboxgl-map {
+    font-family: inherit;
+}
+
+/* Custom marker styles */
+.marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.marker:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.marker.cities {
+    background-color: #3B82F6;
+}
+
+.marker.poi {
+    background-color: #10B981;
+}
+
+.marker.story {
+    background-color: #8B5CF6;
+}
+
+.marker.aircraft {
+    background-color: #FFFFFF;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #1a1a1a;
+}
+
+/* Aircraft icon */
+.aircraft-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Marker labels */
+.marker-label {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(26, 26, 26, 0.9);
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.marker:hover .marker-label {
+    opacity: 1;
+}
+
+/* Flight path line */
+.flight-path {
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 2;
+    stroke-dasharray: 5, 5;
+    fill: none;
+    opacity: 0.6;
+}
+
+/* Responsive adjustments for portrait orientation */
+@media (orientation: portrait) {
+    .map-container {
+        /* Ensure proper aspect ratio for 1080x1920 */
+        aspect-ratio: 9/16;
+    }
+}
+
+/* Screenshot-specific styles */
+.screenshot-mode {
+    /* Styles applied during screenshot capture */
+    overflow: hidden;
+}
+
+.screenshot-mode .loading-overlay,
+.screenshot-mode .error-overlay {
+    display: none !important;
+}
+
+/* Utility classes */
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+/* Mapbox control customizations */
+.mapboxgl-ctrl-group {
+    background-color: rgba(45, 45, 45, 0.9) !important;
+    border: 1px solid #444 !important;
+}
+
+.mapboxgl-ctrl-group button {
+    background-color: transparent !important;
+    color: #ffffff !important;
+}
+
+.mapboxgl-ctrl-group button:hover {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.mapboxgl-popup {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+}
+
+.mapboxgl-popup-content {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+}
+
+.mapboxgl-popup-close-button {
+    color: #ffffff !important;
+    font-size: 18px !important;
+}
+
+.mapboxgl-popup-close-button:hover {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* High contrast mode for accessibility */
+@media (prefers-contrast: high) {
+    .marker {
+        border-width: 3px;
+    }
+    
+    .error-content {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .loading-spinner {
+        animation: none;
+    }
+    
+    .marker {
+        transition: none;
+    }
+    
+    .loading-overlay,
+    .error-overlay {
+        transition: none;
+    }
+} 
