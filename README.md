@@ -260,6 +260,13 @@ console.log(window.flightPathMap.getMarkerCoordinates());
 - [ ] Unit test coverage
 - [ ] Performance monitoring
 
+## Enhancements (2024-04)
+
+- **Modern SVG marker icons** for cities, POIs, story markers, and aircraft, using accessible, high-contrast open-source SVGs (from Feather Icons).
+- **Floating map legend** with icons and text for all marker types, accessible via ARIA and keyboard.
+- **Accessibility improvements**: ARIA labels, keyboard focus, visible focus states, and high-contrast color overlays for all markers.
+- **SVG sources**: [Feather Icons](https://feathericons.com/) (MIT License)
+
 ## 📄 License
 
 This project is licensed under the ISC License.

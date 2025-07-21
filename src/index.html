@@ -16,6 +16,15 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Floating Legend -->
+    <nav id="map-legend" class="map-legend" aria-label="Map Legend">
+        <ul>
+            <li><span class="legend-icon" id="legend-city"></span> <span>Cities (CVG, MCO)</span></li>
+            <li><span class="legend-icon" id="legend-poi"></span> <span>Points of Interest</span></li>
+            <li><span class="legend-icon" id="legend-story"></span> <span>Story Markers</span></li>
+            <li><span class="legend-icon" id="legend-aircraft"></span> <span>Aircraft</span></li>
+        </ul>
+    </nav>
     <!-- Map Container -->
     <div id="map" class="map-container"></div>
     
@@ -39,5 +48,26 @@
     <script src="js/utils.js"></script>
     <script src="js/markers.js"></script>
     <script src="js/map.js"></script>
+    <script>
+// Inject SVGs into legend icons for visual clarity
+const legendSvgs = {
+  'legend-city': 'assets/city.svg',
+  'legend-poi': 'assets/poi.svg',
+  'legend-story': 'assets/story.svg',
+  'legend-aircraft': 'assets/airplane.svg',
+};
+for (const [id, path] of Object.entries(legendSvgs)) {
+  fetch(path).then(res => res.text()).then(svg => {
+    let color = '#fff';
+    if (id === 'legend-city') color = '#3B82F6';
+    if (id === 'legend-poi') color = '#10B981';
+    if (id === 'legend-story') color = '#8B5CF6';
+    if (id === 'legend-aircraft') color = '#fff';
+    svg = svg.replace(/stroke=\"currentColor\"/g, `stroke=\"${color}\"`);
+    svg = svg.replace(/fill=\"currentColor\"/g, `fill=\"${color}\"`);
+    document.getElementById(id).innerHTML = svg;
+  });
+}
+</script>
 </body>
 </html> 

@@ -188,21 +188,66 @@ class MarkerManager {
         element.className = `marker ${type.toLowerCase()}`;
         element.setAttribute('data-marker-type', type);
         element.setAttribute('aria-label', name);
-        
+        element.setAttribute('tabindex', '0'); // Keyboard focusable
+
         // Add label
         const label = document.createElement('div');
         label.className = 'marker-label';
         label.textContent = name;
         element.appendChild(label);
-        
-        // Special handling for aircraft marker
-        if (type === 'AIRCRAFT') {
-            element.innerHTML = `
-                <div class="aircraft-icon">✈</div>
-                <div class="marker-label">${name}</div>
-            `;
+
+        // SVG icon logic
+        let svgPath = '';
+        if (type === 'CITIES') {
+            svgPath = 'assets/city.svg';
+        } else if (type === 'POI') {
+            svgPath = 'assets/poi.svg';
+        } else if (type === 'STORY') {
+            svgPath = 'assets/story.svg';
+        } else if (type === 'AIRCRAFT') {
+            svgPath = 'assets/airplane.svg';
         }
-        
+
+        if (svgPath) {
+            const svgWrapper = document.createElement('div');
+            svgWrapper.className = 'marker-svg-wrapper';
+            svgWrapper.setAttribute('aria-hidden', 'true');
+            svgWrapper.style.width = '24px';
+            svgWrapper.style.height = '24px';
+            svgWrapper.style.display = 'flex';
+            svgWrapper.style.alignItems = 'center';
+            svgWrapper.style.justifyContent = 'center';
+            // Color overlay for each type
+            let color = '#fff';
+            if (type === 'CITIES') color = '#3B82F6';
+            if (type === 'POI') color = '#10B981';
+            if (type === 'STORY') color = '#8B5CF6';
+            if (type === 'AIRCRAFT') color = '#fff';
+            // Fetch and inject SVG inline for color control
+            fetch(svgPath)
+                .then(res => res.text())
+                .then(svg => {
+                    // Replace stroke/fill with color for accessibility
+                    svg = svg.replace(/stroke="currentColor"/g, `stroke="${color}"`);
+                    svg = svg.replace(/fill="currentColor"/g, `fill="${color}"`);
+                    svgWrapper.innerHTML = svg;
+                });
+            element.appendChild(svgWrapper);
+        }
+
+        // Focus/keyboard accessibility
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                element.click();
+            }
+        });
+        element.addEventListener('focus', () => {
+            label.style.opacity = 1;
+        });
+        element.addEventListener('blur', () => {
+            label.style.opacity = 0;
+        });
+
         return element;
     }
     

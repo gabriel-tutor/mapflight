@@ -152,6 +152,11 @@
 - **Flight Path Calculation**: Need to implement great circle route calculation for realistic aircraft positioning
 - **Portrait Optimization**: Standard mobile viewport might need custom CSS for 1080x1920
 - **Marker Hierarchy**: Layer z-index management crucial for proper marker visibility
+- [x] Enhance marker icons, UI, accessibility, and user experience (2024-04-21)
+    - Modern SVG icons for all marker types
+    - Floating, accessible legend
+    - Improved ARIA, keyboard, and focus support
+    - High-contrast, colorblind-friendly design
 
 #### Technical Decisions Made
 - **Coordinate System**: Using WGS84 (standard GPS coordinates)

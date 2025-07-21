@@ -134,37 +134,26 @@ body {
 
 /* Custom marker styles */
 .marker {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #ffffff;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.marker:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.marker.cities {
-    background-color: #3B82F6;
-}
-
-.marker.poi {
-    background-color: #10B981;
-}
-
-.marker.story {
-    background-color: #8B5CF6;
-}
-
+.marker.cities,
+.marker.poi,
+.marker.story,
 .marker.aircraft {
-    background-color: #FFFFFF;
-    width: 24px;
-    height: 24px;
-    border: 2px solid #1a1a1a;
+    background: none;
 }
 
 /* Aircraft icon */
@@ -198,6 +187,28 @@ body {
     z-index: 10;
 }
 
+.marker:hover .marker-label {
+    opacity: 1;
+}
+
+/* SVG marker wrapper for inline icons */
+.marker-svg-wrapper {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+/* Marker focus/hover accessibility */
+.marker:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    z-index: 20;
+}
+
+.marker:focus .marker-label,
 .marker:hover .marker-label {
     opacity: 1;
 }
@@ -239,19 +250,68 @@ body {
     display: block !important;
 }
 
-/* Mapbox control customizations */
+/* Modern Mapbox control customizations */
+.mapboxgl-ctrl-top-right {
+    top: 32px !important;
+    right: 32px !important;
+    z-index: 1200;
+}
+
 .mapboxgl-ctrl-group {
-    background-color: rgba(45, 45, 45, 0.9) !important;
-    border: 1px solid #444 !important;
+    background: #23272f !important;
+    border: 1.5px solid #444 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18) !important;
+    overflow: hidden !important;
 }
 
 .mapboxgl-ctrl-group button {
-    background-color: transparent !important;
-    color: #ffffff !important;
+    background: #8ca6da !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 20px !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 0.18s, color 0.18s;
+    outline: none !important;
+}
+
+.mapboxgl-ctrl-group button:focus {
+    background: #3f5c8b !important;
+    color: #fff !important;
+    outline: 2px solid #fff !important;
+    z-index: 2;
 }
 
 .mapboxgl-ctrl-group button:hover {
-    background-color: rgba(59, 130, 246, 0.2) !important;
+    background: #50627e !important;
+    color: #fff !important;
+}
+
+.mapboxgl-ctrl-group button:disabled {
+    opacity: 0.5 !important;
+    background: #4e5a71 !important;
+    color: #888 !important;
+}
+
+.mapboxgl-ctrl-group:not(:last-child) {
+    margin-bottom: 12px !important;
+}
+
+@media (max-width: 600px) {
+    .mapboxgl-ctrl-top-right {
+        top: 8px !important;
+        right: 8px !important;
+    }
+    .mapboxgl-ctrl-group button {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+    }
 }
 
 .mapboxgl-popup {
@@ -320,5 +380,55 @@ body {
     .loading-overlay,
     .error-overlay {
         transition: none;
+    }
+} 
+
+/* Floating map legend styles */
+.map-legend {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    background: rgba(26, 26, 26, 0.92);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    padding: 12px 20px;
+    z-index: 1100;
+    color: #fff;
+    font-size: 15px;
+    font-family: inherit;
+    pointer-events: auto;
+}
+.map-legend ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.map-legend li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.map-legend li:last-child {
+    margin-bottom: 0;
+}
+.legend-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+@media (max-width: 600px) {
+    .map-legend {
+        top: 8px;
+        left: 8px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .legend-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
     }
 } 
