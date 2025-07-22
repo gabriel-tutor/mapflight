@@ -289,4 +289,4 @@ For issues and questions:
 
 ---
 
-**Built with ❤️ using Mapbox GL JS and Puppeteer** 
+**Built with ❤️ using Mapbox GL JS and Puppeteer**
