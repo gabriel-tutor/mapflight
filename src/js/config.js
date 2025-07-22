@@ -52,7 +52,7 @@ const MAP_CONFIG = {
         dimensions: { width: 1080, height: 1920 }
     },
     zoom: {
-        zoom: 9,
+        zoom: 10, // Increased zoom for closer view
         center: null, // Will be set to aircraft position
         dimensions: { width: 1080, height: 1920 }
     },

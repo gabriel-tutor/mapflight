@@ -134,8 +134,8 @@ body {
 
 /* Custom marker styles */
 .marker {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border: none;
     border-radius: 0;
     background: none;
@@ -147,6 +147,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Add subtle glow for better visibility */
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
 }
 
 .marker.cities,
@@ -171,20 +173,22 @@ body {
 /* Marker labels */
 .marker-label {
     position: absolute;
-    top: -30px;
+    top: -35px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(26, 26, 26, 0.9);
+    background-color: rgba(26, 26, 26, 0.95);
     color: #ffffff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
     white-space: nowrap;
-    opacity: 0;
+    opacity: 0.8;
     transition: opacity 0.2s ease;
     pointer-events: none;
     z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .marker:hover .marker-label {
@@ -193,8 +197,8 @@ body {
 
 /* SVG marker wrapper for inline icons */
 .marker-svg-wrapper {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -431,4 +435,25 @@ body {
         height: 18px;
         margin-right: 6px;
     }
+}
+
+/* Zoom view styles for enhanced marker visibility */
+.zoom-view .marker {
+    width: 36px;
+    height: 36px;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+}
+
+.zoom-view .marker-svg-wrapper {
+    width: 36px;
+    height: 36px;
+}
+
+.zoom-view .marker-label {
+    opacity: 1;
+    font-size: 14px;
+    font-weight: 700;
+    background-color: rgba(26, 26, 26, 0.98);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 } 

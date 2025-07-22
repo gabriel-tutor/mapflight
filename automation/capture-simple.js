@@ -101,27 +101,75 @@ class SimpleScreenshotCapture {
         }
     }
 
+    async waitForMapReady() {
+        try {
+            console.log('Waiting for map to be ready...');
+            
+            // Wait for the map to be initialized and idle
+            await this.page.waitForFunction(() => {
+                return window.flightPathMap && window.flightPathMap.isInitialized && window.flightPathMap.map && window.flightPathMap.map.isStyleLoaded();
+            }, { timeout: 30000 });
+            
+            console.log('Map style loaded');
+            
+            // Wait for map to be idle (all tiles loaded)
+            await this.page.waitForFunction(() => {
+                return window.flightPathMap && window.flightPathMap.map && window.flightPathMap.map.loaded();
+            }, { timeout: 30000 });
+            
+            console.log('Map fully loaded');
+            
+            // Check if map is visible
+            const isVisible = await this.page.evaluate(() => {
+                return window.flightPathMap && window.flightPathMap.isMapVisible ? window.flightPathMap.isMapVisible() : true;
+            });
+            
+            console.log('Map visible:', isVisible);
+            
+            if (!isVisible) {
+                console.warn('Map may not be visible, but continuing...');
+            }
+            
+            // Additional wait to ensure everything is rendered
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+        } catch (error) {
+            console.error('Error waiting for map ready:', error);
+            throw error;
+        }
+    }
+
+    async hideMapUI() {
+        // Hide map controls and attribution for clean screenshots
+        await this.page.evaluate(() => {
+            document.querySelectorAll('.mapboxgl-ctrl').forEach(el => el.style.display = 'none');
+            const attrib = document.querySelector('.mapboxgl-ctrl-attrib');
+            if (attrib) attrib.style.display = 'none';
+        });
+    }
+
     async captureOverview() {
         try {
             console.log('Capturing overview screenshot...');
-            
-            // Simple approach: just wait and take screenshot
+            await this.waitForMapReady();
+            // Set map to overview view
+            await this.page.evaluate(async () => {
+                if (window.flightPathMap && window.flightPathMap.setOverviewView) {
+                    await window.flightPathMap.setOverviewView();
+                }
+            });
+            await this.waitForMapReady();
+            await this.hideMapUI();
             await new Promise(resolve => setTimeout(resolve, SCREENSHOT_CONFIG.animationWait));
-            
-            // Ensure screenshot directory exists
             await this.ensureScreenshotDirectory();
-            
-            // Capture screenshot
             const screenshotPath = path.join(this.screenshotDir, 'overview.png');
             await this.page.screenshot({
                 path: screenshotPath,
                 fullPage: false,
                 type: 'png'
             });
-            
             console.log(`Overview screenshot saved to: ${screenshotPath}`);
             return screenshotPath;
-            
         } catch (error) {
             console.error('Failed to capture overview screenshot:', error);
             throw error;
@@ -131,24 +179,55 @@ class SimpleScreenshotCapture {
     async captureZoom() {
         try {
             console.log('Capturing zoom screenshot...');
+            await this.waitForMapReady();
             
-            // Simple approach: just wait and take screenshot
+            // Debug: Check map state before setting zoom view
+            const mapState = await this.page.evaluate(() => {
+                if (window.flightPathMap) {
+                    return {
+                        isInitialized: window.flightPathMap.isInitialized,
+                        center: window.flightPathMap.map ? window.flightPathMap.map.getCenter() : null,
+                        zoom: window.flightPathMap.map ? window.flightPathMap.map.getZoom() : null,
+                        hasAircraftMarker: window.flightPathMap.markerManager ? !!window.flightPathMap.markerManager.getAircraftMarker() : false
+                    };
+                }
+                return null;
+            });
+            console.log('Map state before zoom view:', mapState);
+            
+            // Set map to zoom view
+            await this.page.evaluate(async () => {
+                if (window.flightPathMap && window.flightPathMap.setZoomView) {
+                    await window.flightPathMap.setZoomView();
+                }
+            });
+            
+            // Wait for zoom animation to complete
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Debug: Check map state after setting zoom view
+            const mapStateAfter = await this.page.evaluate(() => {
+                if (window.flightPathMap && window.flightPathMap.map) {
+                    return {
+                        center: window.flightPathMap.map.getCenter(),
+                        zoom: window.flightPathMap.map.getZoom()
+                    };
+                }
+                return null;
+            });
+            console.log('Map state after zoom view:', mapStateAfter);
+            
+            await this.hideMapUI();
             await new Promise(resolve => setTimeout(resolve, SCREENSHOT_CONFIG.animationWait));
-            
-            // Ensure screenshot directory exists
             await this.ensureScreenshotDirectory();
-            
-            // Capture screenshot
             const screenshotPath = path.join(this.screenshotDir, 'zoom.png');
             await this.page.screenshot({
                 path: screenshotPath,
                 fullPage: false,
                 type: 'png'
             });
-            
             console.log(`Zoom screenshot saved to: ${screenshotPath}`);
             return screenshotPath;
-            
         } catch (error) {
             console.error('Failed to capture zoom screenshot:', error);
             throw error;

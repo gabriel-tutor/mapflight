@@ -26,13 +26,14 @@ class MarkerManager {
             FLIGHT_CONFIG.totalFlightTime
         );
         
-        // Define POI locations (strategic points between CVG and MCO)
-        const poi1 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.3);
-        const poi2 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.7);
+        // Define POI locations near the aircraft position for better zoom view visibility
+        // Position POIs closer to the aircraft location (within ~50-100km)
+        const poi1 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.15); // Closer to CVG
+        const poi2 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.25); // Near aircraft
         
-        // Define story marker locations (narrative-relevant points)
-        const story1 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.2);
-        const story2 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.8);
+        // Define story marker locations near the aircraft for zoom view
+        const story1 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.1); // Very close to CVG
+        const story2 = calculateIntermediatePoint(COORDINATES.CVG, COORDINATES.MCO, 0.35); // Further along path
         
         this.markerData = {
             cities: [
@@ -65,6 +66,20 @@ class MarkerManager {
                     name: 'Point of Interest 2',
                     type: 'POI',
                     description: 'Strategic location along flight path'
+                },
+                {
+                    id: 'poi-3',
+                    coordinates: [aircraftPosition[0] - 0.2, aircraftPosition[1] + 0.1],
+                    name: 'Nearby POI 3',
+                    type: 'POI',
+                    description: 'Local point of interest near aircraft'
+                },
+                {
+                    id: 'poi-4',
+                    coordinates: [aircraftPosition[0] + 0.15, aircraftPosition[1] - 0.15],
+                    name: 'Nearby POI 4',
+                    type: 'POI',
+                    description: 'Local point of interest near aircraft'
                 }
             ],
             story: [
@@ -81,6 +96,20 @@ class MarkerManager {
                     name: 'Story Point 2',
                     type: 'STORY',
                     description: 'Narrative-relevant location'
+                },
+                {
+                    id: 'story-3',
+                    coordinates: [aircraftPosition[0] - 0.1, aircraftPosition[1] - 0.2],
+                    name: 'Nearby Story 3',
+                    type: 'STORY',
+                    description: 'Local story point near aircraft'
+                },
+                {
+                    id: 'story-4',
+                    coordinates: [aircraftPosition[0] + 0.25, aircraftPosition[1] + 0.05],
+                    name: 'Nearby Story 4',
+                    type: 'STORY',
+                    description: 'Local story point near aircraft'
                 }
             ],
             aircraft: [
@@ -212,8 +241,11 @@ class MarkerManager {
             const svgWrapper = document.createElement('div');
             svgWrapper.className = 'marker-svg-wrapper';
             svgWrapper.setAttribute('aria-hidden', 'true');
-            svgWrapper.style.width = '24px';
-            svgWrapper.style.height = '24px';
+            // Use larger size for zoom view
+            const isZoomView = document.body.classList.contains('zoom-view');
+            const size = isZoomView ? '36px' : '32px';
+            svgWrapper.style.width = size;
+            svgWrapper.style.height = size;
             svgWrapper.style.display = 'flex';
             svgWrapper.style.alignItems = 'center';
             svgWrapper.style.justifyContent = 'center';

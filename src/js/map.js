@@ -47,7 +47,7 @@ class FlightPathMap {
                 failIfMajorPerformanceCaveat: false, // Allow software rendering
                 localIdeographFontFamily: "'Noto Sans', 'Noto Sans CJK SC', sans-serif",
                 // Additional options for headless browser compatibility
-                interactive: false, // Disable interactions for screenshots
+                interactive: true, // Enable interactions for proper rendering
                 trackResize: false, // Disable resize tracking
                 renderWorldCopies: false, // Disable world copies for better performance
                 // WebGL compatibility options
@@ -130,6 +130,34 @@ class FlightPathMap {
         
         showError('Map loading failed. Using fallback visualization.');
         hideLoading();
+    }
+    
+    /**
+     * Check if map is properly loaded and visible
+     */
+    isMapVisible() {
+        try {
+            if (!this.map || !this.map.isStyleLoaded()) {
+                return false;
+            }
+            
+            // Check if map container has content
+            const mapContainer = document.getElementById('map');
+            if (!mapContainer || mapContainer.children.length === 0) {
+                return false;
+            }
+            
+            // Check if map canvas exists and has content
+            const canvas = mapContainer.querySelector('canvas');
+            if (!canvas || canvas.width === 0 || canvas.height === 0) {
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error checking map visibility:', error);
+            return false;
+        }
     }
 
     /**
@@ -266,6 +294,9 @@ class FlightPathMap {
                 throw new Error('Map not initialized');
             }
             
+            // Remove zoom view class for overview
+            document.body.classList.remove('zoom-view');
+            
             const { zoom, center } = MAP_CONFIG.overview;
             console.log('Overview view config:', { zoom, center });
             
@@ -314,14 +345,17 @@ class FlightPathMap {
             console.log('Aircraft coordinates:', aircraftCoords);
             console.log('Zoom level:', zoom);
             
-            // Calculate center to position aircraft in top third of frame
-            const bounds = this.map.getBounds();
-            const mapHeight = bounds.getNorth() - bounds.getSouth();
-            const offset = mapHeight * 0.2; // Move center up by 20% of map height
+            // Simple approach: position aircraft in top third by adjusting center
+            // Move the center south so the aircraft appears higher in the frame
+            const latOffset = 0.5; // Adjust this value to fine-tune positioning
+            const center = [aircraftCoords[0], aircraftCoords[1] - latOffset];
             
-            const center = [aircraftCoords[0], aircraftCoords[1] + offset];
-            console.log('Calculated center:', center);
+            console.log('Setting zoom view center:', center);
             
+            // Add zoom view class to body for enhanced marker styling
+            document.body.classList.add('zoom-view');
+            
+            // First set the zoom and center
             await this.map.flyTo({
                 center: center,
                 zoom: zoom,
