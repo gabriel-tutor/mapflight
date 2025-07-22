@@ -1,4 +1,4 @@
-# CLIENT REQUIREMENTS DOCUMENTATION
+# DOCUMENTATION
 
 ## 🎯 Project Objective
 Demonstrate proficiency in **Mapbox GL JS**, **layered markers**, and **Puppeteer automation** to create clean, consistent screenshots for an MVP flight path visualization system.
