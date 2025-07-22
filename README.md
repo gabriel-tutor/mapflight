@@ -41,6 +41,22 @@ This project demonstrates proficiency in:
 - Valid Mapbox access token
 - Modern web browser (Chrome 90+, Firefox 88+)
 
+### ⚡ 30-Second Setup
+```bash
+# 1. Clone and install
+git clone <repository-url>
+cd mapflight
+npm install
+
+# 2. Add your Mapbox token
+# Edit src/js/config.local.js and add your token:
+# window.MAPBOX_ACCESS_TOKEN = "pk.your_token_here";
+
+# 3. Start the app
+npm run dev
+# Open http://localhost:3000
+```
+
 ### Installation
 
 1. **Clone the repository**
@@ -56,13 +72,22 @@ This project demonstrates proficiency in:
 
 3. **Configure Mapbox access token**
    
-   **Option A: Environment variable (recommended)**
+   **For Browser Development (Recommended)**
    ```bash
-   export MAPBOX_ACCESS_TOKEN="your_mapbox_token_here"
+   # Edit src/js/config.local.js and add your Mapbox token
+   # This file is gitignored and safe for local development
+   window.MAPBOX_ACCESS_TOKEN = "your_actual_mapbox_token_here";
    ```
    
-   **Option B: Update config file**
-   Edit `src/js/config.js` and replace the token with your own.
+   **For Server/Automation (Optional)**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env and add your Mapbox access token
+   # Get your token from: https://account.mapbox.com/access-tokens/
+   MAPBOX_ACCESS_TOKEN=your_actual_mapbox_token_here
+   ```
 
 4. **Start development server**
    ```bash
@@ -99,6 +124,8 @@ This will create two files in `src/screenshots/`:
 - ✅ Responsive design optimized for portrait orientation
 - ✅ Comprehensive documentation
 - ✅ Cross-platform compatibility
+- ✅ **Secure environment variable management**
+- ✅ **Mapbox token protection from repository exposure**
 
 **🎉 Project Successfully Completed - July 20, 2025**
 
@@ -109,6 +136,7 @@ mapflight/
 ├── src/
 │   ├── index.html          # Main map interface
 │   ├── js/
+│   │   ├── env-config.js   # Environment variable loading
 │   │   ├── config.js       # Configuration constants
 │   │   ├── utils.js        # Helper functions & calculations
 │   │   ├── markers.js      # Marker management system
@@ -121,6 +149,9 @@ mapflight/
 ├── automation/
 │   ├── capture.js          # Puppeteer screenshot logic
 │   └── capture-simple.js   # Simplified screenshot capture
+├── .env.example            # Environment variables template
+├── .gitignore              # Git ignore rules
+├── server.js               # Development server with env support
 ├── package.json            # Dependencies & scripts
 ├── planning.md             # Technical architecture
 ├── task.md                 # Development tasks
@@ -142,6 +173,38 @@ mapflight/
 - **Timing**: 2-second wait after network idle
 
 ## 🔧 Configuration
+
+### Security Setup
+
+This project implements a **dual-layer security approach** to protect your Mapbox access token:
+
+#### 1. Browser Development (Primary Method)
+- **File**: `src/js/config.local.js` (gitignored)
+- **Purpose**: Local development and browser access
+- **Security**: Never committed to repository
+- **Usage**: Set `window.MAPBOX_ACCESS_TOKEN = "your_token_here"`
+
+#### 2. Server/Automation (Secondary Method)
+- **File**: `.env` (gitignored)
+- **Purpose**: Node.js scripts, automation, and server-side processes
+- **Security**: Environment variables loaded via dotenv
+- **Usage**: Set `MAPBOX_ACCESS_TOKEN=your_token_here`
+
+### Environment Variables
+
+| Variable | Description | Required | Default | Usage |
+|----------|-------------|----------|---------|-------|
+| `MAPBOX_ACCESS_TOKEN` | Your Mapbox access token | Yes | None | Browser & Server |
+| `NODE_ENV` | Environment mode | No | `development` | Server only |
+| `PORT` | Server port | No | `3000` | Server only |
+
+### Security Best Practices
+
+- **Never commit sensitive files** - Both `.env` and `src/js/config.local.js` are gitignored
+- **Use different tokens** for development and production environments
+- **Rotate tokens regularly** for production deployments
+- **Keep tokens private** - Never share or expose in public repositories
+- **Use public tokens only** - Mapbox public tokens (starting with `pk.`) are safe for client-side use
 
 ### Key Settings (`src/js/config.js`)
 
@@ -173,29 +236,37 @@ SCREENSHOT_CONFIG = {
 ### Available Scripts
 
 ```bash
-npm run dev          # Start development server
+npm run dev          # Start development server with env support
+npm run dev:http     # Start simple HTTP server (no env support)
 npm run screenshot   # Generate automated screenshots
+npm run screenshot-simple # Generate simplified screenshots
 npm run build        # Create production build
 npm test             # Run test suite (future)
 ```
 
 ### Development Workflow
 
-1. **Start development server**
+1. **Configure your Mapbox token**
+   ```bash
+   # Edit src/js/config.local.js with your token
+   window.MAPBOX_ACCESS_TOKEN = "pk.your_token_here";
+   ```
+
+2. **Start development server**
    ```bash
    npm run dev
    ```
 
-2. **Make changes** to source files
+3. **Make changes** to source files
 
-3. **Test manually** in browser at `http://localhost:3000`
+4. **Test manually** in browser at `http://localhost:3000`
 
-4. **Generate screenshots** to verify output
+5. **Generate screenshots** to verify output
    ```bash
-   npm run screenshot
+   npm run screenshot-simple
    ```
 
-5. **Check generated files** in `src/screenshots/`
+6. **Check generated files** in `src/screenshots/`
 
 ### Code Quality
 
@@ -210,9 +281,22 @@ npm test             # Run test suite (future)
 ### Common Issues
 
 **Map not loading**
-- Verify Mapbox access token is valid
+- Verify Mapbox access token is valid and properly configured in `src/js/config.local.js`
 - Check browser console for errors
 - Ensure internet connection is stable
+- Verify the token format (should start with `pk.`)
+
+**Token configuration issues**
+- Ensure `src/js/config.local.js` exists and contains your token
+- Check that `window.MAPBOX_ACCESS_TOKEN` is set correctly
+- Verify the token is not the placeholder value
+- Restart the development server after changing tokens
+
+**Environment variable issues (for automation)**
+- Ensure `.env` file exists in the project root
+- Check that `MAPBOX_ACCESS_TOKEN` is set correctly
+- Restart the development server after changing environment variables
+- Verify the token format (should start with `pk.`)
 
 **Screenshots failing**
 - Check Puppeteer installation
@@ -249,6 +333,40 @@ console.log(window.flightPathMap.getMarkerCoordinates());
 - **Safari**: 14+
 - **Edge**: 90+
 
+## 🔒 Security Implementation
+
+### Token Protection Strategy
+
+This project implements a **comprehensive security approach** to protect your Mapbox access token:
+
+#### ✅ What's Protected
+- **Repository Security**: Token never committed to git
+- **Local Development**: Token available for browser use
+- **Automation**: Token available for screenshot generation
+- **Server Operations**: Token available for Node.js processes
+
+#### 🛡️ Security Layers
+1. **`.gitignore`**: Prevents sensitive files from being committed
+2. **`src/js/config.local.js`**: Browser-accessible token (gitignored)
+3. **`.env`**: Server-side environment variables (gitignored)
+4. **`env-config.js`**: Environment variable loading logic
+5. **Fallback Protection**: Placeholder values prevent accidental exposure
+
+#### 🔄 Token Management
+- **Development**: Use `src/js/config.local.js` for browser access
+- **Automation**: Use `.env` for Puppeteer and server scripts
+- **Production**: Use build tools or server-side injection
+- **Rotation**: Easy to update tokens without code changes
+
+### Security Best Practices Implemented
+
+- ✅ **No hardcoded tokens** in committed files
+- ✅ **Dual-layer protection** for browser and server
+- ✅ **Clear documentation** for secure setup
+- ✅ **Example templates** for easy configuration
+- ✅ **Error handling** for missing tokens
+- ✅ **Development workflow** that prioritizes security
+
 ## 🔮 Future Enhancements
 
 - [ ] Real-time flight data integration
@@ -259,6 +377,8 @@ console.log(window.flightPathMap.getMarkerCoordinates());
 - [ ] API endpoint for programmatic access
 - [ ] Unit test coverage
 - [ ] Performance monitoring
+- [ ] **Production deployment security** (build-time token injection)
+- [ ] **Token rotation automation**
 
 ## Enhancements (2024-04)
 

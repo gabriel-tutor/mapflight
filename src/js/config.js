@@ -3,8 +3,10 @@
  * Contains coordinates, marker types, and map settings
  */
 
-// Mapbox Access Token - Replace with your actual token
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiZ2FiY29kZXIiLCJhIjoiY21kYzNkM3RnMHh0cTJzcHk2djRpcDF4MyJ9.wr3fXFpQXYIKlwEkMfikXA';
+// Mapbox Access Token - Loaded from browser global or fallback
+const MAPBOX_ACCESS_TOKEN = (typeof window !== 'undefined' && window.MAPBOX_ACCESS_TOKEN)
+    ? window.MAPBOX_ACCESS_TOKEN
+    : 'YOUR_MAPBOX_ACCESS_TOKEN_HERE';
 
 
 // Geographic coordinates
